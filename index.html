@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fox Editor</title>
+    <link rel="stylesheet" href="default.css" type="text/css"/>
+    <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        try {
+            window.$ = window.jQuery = require('./bower_components/jquery/dist/jquery.min.js');
+        } catch (e) {}
+    </script>
+    <script type="text/javascript" src="bower_components/jquery-ui/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="bower_components/to-markdown/src/to-markdown.js"></script>
+    <script type="text/javascript" src="bower_components/markdown-js/dist/markdown.min.js"></script>
+    <script type="text/javascript" src="bower_components/Keypress/keypress-2.1.0.min.js"></script>
+    <script type="text/javascript" src="bower_components/jquery-textrange/jquery-textrange.js"></script>
+    <script type="text/javascript" src="editor.js"></script>
+</head>
+<body>
+<div id="structure">
+    <img class="selected" src="assets/pin.png" alt="pin" onclick="structure.pin(!$(this).hasClass('selected'))" />
+    <span class="title">Structure</span>
+    <div id="headers"></div>
+</div>
+<div id="stats">
+    <img class="selected" src="assets/pin.png" alt="pin" onclick="stats.pin(!$(this).hasClass('selected'))"/>
+    <span class="title">Statistics</span>
+    <div id="charcount">
+        <label>Character:</label>
+        <span>1234567890</span>
+    </div>
+    <div id="wordcount">
+        <label>Words:</label>
+        <span>1234567</span>
+    </div>
+    <div id="paragraphcount">
+        <label>Paragraphs:</label>
+        <span>1234</span>
+    </div>
+    <div id="pagecount">
+        <label>Pages:</label>
+        <span>123</span>
+    </div>
+    <div id="timetyping">
+        <label>Time spent typing:</label>
+        <span>1 hour 35 min</span>
+    </div>
+</div>
+<div id="editor" contenteditable="true">
+    <div class="loader">
+        <img src="assets/preloader.gif" alt="Loading Indicator" />
+        <div>Loading...</div>
+    </div>
+</div>
+</body>
+</html>

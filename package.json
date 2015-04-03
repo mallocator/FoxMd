@@ -1,0 +1,32 @@
+{
+  "name": "foxmd",
+  "version": "1.0.0",
+  "description": "A focused writer based on markdown",
+  "main": "fox.js",
+  "scripts": {
+    "test": "istanbul cover _mocha",
+    "postinstall": "bower install",
+    "start": "node_modules/atom-shell/run.bat ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/mallocator/FoxMD"
+  },
+  "keywords": [
+    "markdown",
+    "focused",
+    "writing",
+    "distraction",
+    "free",
+    "editor"
+  ],
+  "author": "Ravi Gairola <mallox@pyxzl.net>",
+  "license": "Apache 2.0",
+  "bugs": {
+    "url": "https://github.com/mallocator/FoxMD/issues"
+  },
+  "homepage": "https://github.com/mallocator/FoxMD",
+  "dependencies": {
+    "atom-shell": "^0.22.3"
+  }
+}

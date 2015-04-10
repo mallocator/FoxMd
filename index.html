@@ -23,9 +23,25 @@
 </div>
 <div id="tools">
     <div id="bar">
-        <div>settings</div>
-        <div>user</div>
-        <div>about</div>
+        <div id="centerSetting">
+            <img class="selected" src="assets/center_none.png" alt="Don't center screen" onclick="actions.center(0, this)"/>
+            <img src="assets/center_bottom.png" alt="Center at bottom of screen" onclick="actions.center(0.75, this)"/>
+            <img src="assets/center_middle.png" alt="Center in middle of screen" onclick="actions.center(0.5, this)"/>
+            <img src="assets/center_top.png" alt="Center at top of screen" onclick="actions.center(0.25, this)"/>
+        </div>
+        <div id="focusSetting">
+            <img src="assets/focus.png" alt="Focus on paragraph" onclick="actions.focus()"/>
+        </div>
+        <div id="aboutButton">
+            <img src="assets/help.png" alt="More information about this wonderful piece of technology" onclick="actions.about()"/>
+        </div>
+        <div id="userSetting">
+            <img src="assets/user.png" alt="The spitting image of you. I can see the resemblance!" onclick="actions.user()">
+        </div>
+        <form id="searchBox" onsubmit="editor.actions.search()">
+            <input type="text" id="search" placeholder="Search...">
+            <img src="assets/search.png" alt="Search the document"/>
+        </form>
     </div>
 </div>
 <div id="stats">

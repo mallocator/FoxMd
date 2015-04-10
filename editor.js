@@ -82,7 +82,49 @@ var stats = {
     }
 };
 
-
+var actions = {
+    elem: null,
+    hovering: false,
+    init: function () {
+        actions.elem = $('#bar');
+        $(document).on('mousemove', this.mouseMoveHandler);
+        actions.elem.on('mouseover', this.mouseInHandler);
+        // TODO read all the settings and set the button states
+    },
+    mouseMoveHandler: function (event) {
+        if (event.clientY < 50 && event.clientX > 185 && event.clientX < window.innerWidth - 165) {
+            actions.elem.show('slide', {direction: 'up'});
+        }
+    },
+    mouseInHandler: function (event) {
+        actions.hovering = true;
+        event.stopPropagation();
+    },
+    center: function (amount, elem) {
+        editor.elem.focus();
+        preferences.set('center', amount);
+        editor.center();
+        $('#centerSetting .selected').removeClass('selected');
+        $(elem).addClass('selected')
+    },
+    focus: function () {
+        var button = $('#focusSetting img');
+        if (button.hasClass('selected')) {
+            button.removeClass('selected');
+        } else {
+            button.addClass('selected');
+        }
+    },
+    user: function () {
+        // TODO open user dialog
+    },
+    about: function () {
+        // TODO open about dialog
+    },
+    search: function () {
+        return false;
+    }
+};
 
 var markdown = {
     startPatterns: {
@@ -145,18 +187,22 @@ var editor = {
     medium: null,
     init: function() {
         editor.elem = $('#editor');
-        function clearTools() {
+        function clearTools(event) {
             if (!preferences.get('pinStructure')) {
                 structure.elem.hide('slide', {direction: 'left'});
             }
             if (!preferences.get('pinStats')) {
                 stats.elem.hide('slide', {direction: 'right'});
             }
+            if (event.clientY > 50) {
+                actions.elem.hide('slide', {direction: 'up'});
+            }
         }
-        editor.elem.on('mouseenter', clearTools);
+        editor.elem.on('mousemove', clearTools);
         editor.elem.on('keyup', editor.cleanUp);
         editor.elem.on('keyup focus click', editor.focus);
         editor.elem.on('keyup focus click', editor.center);
+        editor.elem.focus();
     },
     load: function() {
         $.get('test/testdata.md', function(data) {
@@ -176,6 +222,7 @@ var editor = {
     },
     focused: null,
     focus: function(event) {
+        // TODO handle if preferences.focus is false;
         if (editor.focused && editor.focused.length) {
             editor.focused.removeClass('focused');
         }
@@ -193,12 +240,14 @@ var editor = {
         }
         return null;
     },
-    center: function(event) {
-        var fontsize = parseInt($(window.getSelection().focusNode).parent().css('font-size')) * 1.5;
+    center: function() {
         var focus = $(window).height() * preferences.get('center');
-        var ypos = editor.getCaretPosition();
-        var offset = $(document.body).scrollTop();
-        $(document.body).scrollTop(offset + ypos + fontsize - focus);
+        if (focus > 0) {
+            var fontsize = parseInt($(window.getSelection().focusNode).parent().css('font-size')) * 1.5;
+            var ypos = editor.getCaretPosition();
+            var offset = $(document.body).scrollTop();
+            $(document.body).scrollTop(offset + ypos + fontsize - focus);
+        }
     }
 };
 
@@ -302,6 +351,7 @@ $(document).ready(function() {
     preferences.init();
     structure.init();
     stats.init();
+    actions.init();
     editor.init();
     metaInfo.init();
     editor.load();

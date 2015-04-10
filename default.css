@@ -1,4 +1,4 @@
-body {
+body, input {
     padding: 50px;
     font-size: 20px;
     font-family: Georgia, Cambria, 'Times New Roman', Times, serif;
@@ -32,10 +32,71 @@ a {
 }
 
 #bar {
-    border: 1px solid;
+    display: none;
     width: 700px;
     margin: 0 auto;
     background: #fff;
+    padding: 4px;
+    height: 32px;
+    border-radius: 7px;
+}
+
+#bar img {
+    opacity: 0.3;
+    border: 1px solid #666;
+    width: 20px;
+    height: 20px;
+    padding: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#bar img.selected {
+    opacity: 1.0;
+    border-width: 3px;
+    padding: 3px;
+}
+
+#bar img:hover {
+    opacity: 0.8;
+}
+
+#centerSetting {
+    float: left;
+}
+
+#focusSetting {
+    float: left;
+    margin-left: 20px;
+}
+
+#searchBox {
+    float: right;
+}
+
+#searchBox input {
+    float: left;
+    font-size: 16px;
+    padding: 12px 10px 0;
+    border: 0;
+    border-bottom: 1px solid #999;
+    color: #444;
+    margin-right: 10px;
+    width: 200px;
+}
+
+#searchBox input:focus {
+    outline: none;
+}
+
+#userSetting {
+    float: right;
+    margin-left: 20px;
+}
+
+#aboutButton {
+    float: right;
+    margin-left: 5px;
 }
 
 #structure {

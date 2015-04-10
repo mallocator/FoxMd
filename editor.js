@@ -1,16 +1,30 @@
-var settings = {
+var preferences = {
     focus: true,
     center: 0.5,
-    pin: {
-        structure: false,
-        stats: false
+    pinStructure: false,
+    pinStats: false,
+    set: function(prop, value) {
+        preferences[prop] = value;
+        window.localStorage.setItem('preferences', JSON.stringify(preferences));
+    },
+    get: function(prop, def) {
+        return preferences[prop] === undefined ? def : preferences[prop];
+    },
+    init: function() {
+        var serialized = window.localStorage.getItem('preferences');
+        if (serialized && serialized.length) {
+            $.extend(preferences, JSON.parse(serialized));
+        }
     }
 };
 
 var structure = {
     elem: null,
-    enabled: false,
     hovering: false,
+    init: function() {
+        structure.elem = $('#structure');
+        structure.pin(preferences.get('pinStructure'));
+    },
     mouseMoveHandler: function(event) {
         if (event.clientX < 50) {
             structure.elem.show('slide', {direction: 'left'});
@@ -21,8 +35,7 @@ var structure = {
         event.stopPropagation();
     },
     pin: function(enabled) {
-        settings.pin.structure = enabled;
-        structure.elem = $('#structure');
+        preferences.set('pinStructure', enabled);
         if (enabled) {
             structure.elem.find('img').addClass('selected');
             $(document).off('mousemove', this.mouseMoveHandler);
@@ -39,8 +52,11 @@ var structure = {
 
 var stats = {
     elem: null,
-    enabled: false,
     hovering: false,
+    init: function() {
+        stats.elem = $('#stats');
+        stats.pin(preferences.get('pinStats'));
+    },
     mouseMoveHandler: function (event) {
         if (event.clientX > window.innerWidth - 50) {
             stats.elem.show('slide', {direction: 'right'});
@@ -51,8 +67,7 @@ var stats = {
         event.stopPropagation();
     },
     pin: function (enabled) {
-        settings.pin.stats = enabled;
-        stats.elem = $('#stats');
+        preferences.set('pinStats', enabled);
         if (enabled) {
             stats.elem.find('img').addClass('selected');
             $(document).off('mousemove', this.mouseMoveHandler);
@@ -131,10 +146,10 @@ var editor = {
     init: function() {
         editor.elem = $('#editor');
         function clearTools() {
-            if (!settings.pin.structure) {
+            if (!preferences.get('pinStructure')) {
                 structure.elem.hide('slide', {direction: 'left'});
             }
-            if (!settings.pin.stats) {
+            if (!preferences.get('pinStats')) {
                 stats.elem.hide('slide', {direction: 'right'});
             }
         }
@@ -180,7 +195,7 @@ var editor = {
     },
     center: function(event) {
         var fontsize = parseInt($(window.getSelection().focusNode).parent().css('font-size')) * 1.5;
-        var focus = $(window).height() * settings.center;
+        var focus = $(window).height() * preferences.get('center');
         var ypos = editor.getCaretPosition();
         var offset = $(document.body).scrollTop();
         $(document.body).scrollTop(offset + ypos + fontsize - focus);
@@ -264,10 +279,10 @@ var general = {
     setKeys: function () {
         var listener = new window.keypress.Listener();
         listener.simple_combo("meta j", function () {
-            structure.pin(!settings.pin.structure)
+            structure.pin(!preferences.get('pinStructure'));
         });
         listener.simple_combo("meta k", function () {
-            stats.pin(!settings.pin.stats)
+            stats.pin(!preferences.get('pinStats'));
         });
         listener.simple_combo("meta ?", this.showHelp);
         listener.simple_combo("meta s", function() {
@@ -284,8 +299,9 @@ var general = {
 
 
 $(document).ready(function() {
-    structure.pin();
-    stats.pin();
+    preferences.init();
+    structure.init();
+    stats.init();
     editor.init();
     metaInfo.init();
     editor.load();

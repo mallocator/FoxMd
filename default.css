@@ -24,6 +24,20 @@ a {
     padding-top: 200px;
 }
 
+#tools {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+#bar {
+    border: 1px solid;
+    width: 700px;
+    margin: 0 auto;
+    background: #fff;
+}
+
 #structure {
     position: fixed;
     left: 0;
@@ -57,7 +71,6 @@ a {
 #structure img:hover, #stats img:hover {
     opacity: 0.8;
 }
-
 
 #headers > * {
     padding-bottom: 3px;
@@ -103,11 +116,12 @@ a {
     bottom: 0;
     right: 0;
     font-size: 0.8em;
-    padding: 10px 10px 10px 20px;
+    padding: 10px;
     display: none;
     z-index: 2;
-    padding-top: 2000px;
+    margin-top: 2000px;
     background: white;
+    width: 160px
 }
 
 #stats img {

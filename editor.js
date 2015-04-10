@@ -1,3 +1,10 @@
+var atomShell = false;
+try {
+    process;
+    atomShell = true;
+} catch (e) {}
+
+
 var preferences = {
     focus: true,
     center: 0.5,
@@ -89,7 +96,11 @@ var actions = {
         actions.elem = $('#bar');
         $(document).on('mousemove', this.mouseMoveHandler);
         actions.elem.on('mouseover', this.mouseInHandler);
-        // TODO read all the settings and set the button states
+        if (!atomShell) {
+            $('#searchBox').hide();
+        }
+        actions.center();
+        actions.focus();
     },
     mouseMoveHandler: function (event) {
         if (event.clientY < 50 && event.clientX > 185 && event.clientX < window.innerWidth - 165) {
@@ -100,20 +111,35 @@ var actions = {
         actions.hovering = true;
         event.stopPropagation();
     },
-    center: function (amount, elem) {
+    center: function (amount) {
         editor.elem.focus();
-        preferences.set('center', amount);
+        if (amount) {
+            preferences.set('center', amount);
+        } else{
+            amount = preferences.get('center');
+        }
         editor.center();
         $('#centerSetting .selected').removeClass('selected');
-        $(elem).addClass('selected')
+        if (amount == 0) {
+            $('#centerNone').addClass('selected');
+        } else if (amount < 0.45) {
+            $('#centerTop').addClass('selected');
+        } else if (amount < 0.55) {
+            $('#centerMiddle').addClass('selected');
+        } else {
+            $('#centerBottom').addClass('selected');
+        }
     },
     focus: function () {
         var button = $('#focusSetting img');
         if (button.hasClass('selected')) {
             button.removeClass('selected');
+            preferences.set('focus', false);
         } else {
             button.addClass('selected');
+            preferences.set('focus', true);
         }
+        editor.focus();
     },
     user: function () {
         // TODO open user dialog
@@ -121,8 +147,8 @@ var actions = {
     about: function () {
         // TODO open about dialog
     },
-    search: function () {
-        return false;
+    search: function (event) {
+        event.preventDefault();
     }
 };
 
@@ -200,9 +226,10 @@ var editor = {
         }
         editor.elem.on('mousemove', clearTools);
         editor.elem.on('keyup', editor.cleanUp);
-        editor.elem.on('keyup focus click', editor.focus);
+        editor.elem.on('keydown keyup focus click', editor.focus);
         editor.elem.on('keyup focus click', editor.center);
         editor.elem.focus();
+        editor.center();
     },
     load: function() {
         $.get('test/testdata.md', function(data) {
@@ -213,7 +240,7 @@ var editor = {
     },
     cleanUp: function(event) {
         editor.elem.find('span, div, font').each(function(i, elem) {
-            elem = $(elem)
+            elem = $(elem);
             var content = elem.html();
             var parent = elem.parent();
             elem.detach();
@@ -221,12 +248,16 @@ var editor = {
         });
     },
     focused: null,
-    focus: function(event) {
-        // TODO handle if preferences.focus is false;
+    focus: function() {
         if (editor.focused && editor.focused.length) {
             editor.focused.removeClass('focused');
         }
-        editor.focused = $(window.getSelection().focusNode).closest('p, ol, ul, h1, h2, h3, h4, h5, h6').addClass('focused');
+        if (preferences.get('focus')) {
+            editor.elem.removeClass('focused');
+            editor.focused = $(window.getSelection().focusNode).closest('p, ol, ul, h1, h2, h3, h4, h5, h6').addClass('focused');
+        } else {
+            editor.elem.addClass('focused');
+        }
     },
     getCaretPosition: function() {
         var selection = window.getSelection();
@@ -334,9 +365,16 @@ var general = {
             stats.pin(!preferences.get('pinStats'));
         });
         listener.simple_combo("meta ?", this.showHelp);
-        listener.simple_combo("meta s", function() {
+        listener.simple_combo("meta s", function(event) {
             return false;
         });
+        if (atomShell) {
+            listener.simple_combo("meta f", function (event) {
+                actions.elem.show('slide', {direction: 'up'});
+                $('#search').focus();
+                return false;
+            });
+        }
         listener.simple_combo("tab", function () {
             return false;
         });
@@ -349,10 +387,10 @@ var general = {
 
 $(document).ready(function() {
     preferences.init();
+    editor.init();
     structure.init();
     stats.init();
     actions.init();
-    editor.init();
     metaInfo.init();
     editor.load();
     general.setKeys();

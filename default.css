@@ -222,15 +222,15 @@ a {
 #editor {
     text-align: left;
     /* TODO make this half the page size if focus is enabled */
-    padding: 500px 0;
-    color: #ccc;
+    padding: 100% 0;
+    color: #eee;
 }
 
 #editor:focus {
     outline: none;
 }
 
-#editor .focused {
+#editor.focused, #editor .focused {
     color: #333;
     opacity: 1;
 }

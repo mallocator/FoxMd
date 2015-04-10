@@ -1,7 +1,15 @@
 body {
     padding: 50px;
-    font-size: 1.3em;
+    font-size: 20px;
+    font-family: Georgia, Cambria, 'Times New Roman', Times, serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
     font-family: "Lucida Grande", Lucida, Arial, sans;
+}
+
+h1 {
+    font-size: 36px;
 }
 
 a {
@@ -131,13 +139,23 @@ a {
     font-family: Consolas, "Courier New", Courier, sans-serif;
 }
 
-#editor {
-    width: 800px;
+#main {
     margin: auto;
+    width: 800px;
+}
+
+#editor {
     text-align: left;
-    white-space: pre;
+    /* TODO make this half the page size if focus is enabled */
+    padding: 500px 0;
+    color: #ccc;
 }
 
 #editor:focus {
     outline: none;
+}
+
+#editor .focused {
+    color: #333;
+    opacity: 1;
 }

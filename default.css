@@ -219,11 +219,92 @@ a {
     width: 800px;
 }
 
+#empty {
+    position: fixed;
+    top: 50%;
+    width: 800px;
+    text-align: center;
+    margin-top: -130px;
+}
+
+#addIcon, #openIcon {
+    display: inline-block;
+    opacity: 0.1;
+    margin: 0px 20px 40px;
+}
+
+#addIcon:hover, #openIcon:hover {
+    opacity: 0.5;
+}
+
+#addIcon:hover:after, #openIcon:hover:after {
+	font-size: 11px;
+	font-weight: bold;
+	content: attr(data-title);
+	position: absolute;
+	width: 140px;
+	margin-left: -70px;
+}
+
+#historyTitle {
+    font-family: "Lucida Grande", Lucida, Arial, sans;
+    font-weight: bold;
+    color: #ccc;
+    padding-bottom: 20px;
+}
+
+#history {
+    text-align: left;
+    padding: 0 230px;
+}
+
+#history .entry {
+    font-family: "Lucida Grande", Lucida, Arial, sans;
+    font-size: 14px;
+    padding: 5px 10px;
+    margin: 2px;
+    color: #555;
+}
+
+#history .entry:hover {
+    background: #f0f0f0;
+}
+
+#empty .entry:hover:after {
+    background: #fff;
+	content: attr(data-path);
+	position: absolute;
+	top: 153px;
+	left: 270px;
+	color: #ddd;
+	font-size: 10px;
+}
+
+#empty .entry:hover:before {
+	background: #fff;
+	position: absolute;
+	top: 150px;
+	left: 240px;
+}
+
+#empty .dropbox:hover:before {
+    content: url('assets/dropbox.png');
+}
+
+#empty .gdrive:hover:before {
+    content: url('assets/gdrive.png');
+}
+
+#empty .local:hover:before {
+    content: url('assets/disk.png');
+}
+
 #editor {
     text-align: left;
     /* TODO make this half the page size if focus is enabled */
     padding: 100% 0;
     color: #eee;
+    display: none;
 }
 
 #editor:focus {

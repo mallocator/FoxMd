@@ -164,8 +164,8 @@ var markdown = {
         p: /^([\s]*[^<\s].*)$/gm
     },
     inlinePatterns: {
-        strong: /\*([^\*\s]*)\*/g,
-        em: /_([^_\s]*)_/g
+        strong: /\*([^\*]*)\*/g,
+        em: /_([^_]*)_/g
     },
     convertLists: function (content) {
         var previousType = null;
@@ -197,6 +197,9 @@ var markdown = {
         });
     },
     convert: function (content) {
+        if (!content) {
+            return;
+        }
         content = markdown.convertLists(content);
         for (var tag in markdown.startPatterns) {
             content = content.replace(markdown.startPatterns[tag], "<" + tag + ">$1</" + tag + ">")
@@ -208,35 +211,184 @@ var markdown = {
     }
 };
 
+var inplace = {
+    convert: function(event) {
+        switch (event.keyCode) {
+            case 8:
+                inplace.backspace(event);
+                break;
+            case 108:
+            case 13:
+                inplace.newline(event);
+                break;
+            default:
+                inplace.detectAtStart();
+                inplace.detectInline();
+        }
+    },
+    startPattern: /^(\*|\-|[0-9]+\.|#+)\s/,
+    detectAtStart: function() {
+        var s = window.getSelection();
+        if (s.rangeCount && s.focusOffset < 10) {
+            var range = s.getRangeAt(0);
+            var anchor = $('<a><br /></a>');
+            range.insertNode(anchor[0]);
+            var node = $(s.focusNode).closest('p');
+            if (node.length && node.html().replace(/<\/?[^a]+>/g, '').indexOf('<a>') < 10) {
+                 if(inplace.startPattern.test(node.text())) {
+                    inplace.convertAtStart(anchor);
+                    anchor = editor.elem.find('a');
+                    var range = document.createRange();
+                    range.setStartBefore(anchor[0]);
+                    range.collapse(true);
+                    s.removeAllRanges();
+                    s.addRange(range);
+                }
+            }
+            anchor.remove();
+        }
+    },
+    startMasks: [{
+            match: /^#(?:\s|&nbsp;)/,
+            start: '<h1 class="focused">',
+            end: '</h1>'
+        }, {
+            match: /^##(?:\s|&nbsp;)/,
+            start: '<h2 class="focused">',
+            end: '</h2>'
+        }, {
+            match: /^###(?:\s|&nbsp;)/,
+            start: '<h3 class="focused">',
+            end: '</h3>'
+        }, {
+            match: /^####(?:\s|&nbsp;)/,
+            len: 5,
+            start: '<h4 class="focused">',
+            end: '</h4>'
+        }, {
+            match: /^#####(?:\s|&nbsp;)/,
+            start: '<h5 class="focused">',
+            end: '</h5>'
+        }, {
+            match: /^######(?:\s|&nbsp;)/,
+            start: '<h6 class="focused">',
+            end: '</h6>'
+        }, {
+            match: /^\*(?:\s|&nbsp;)(?!(\*|$))/m,
+            start: '<ul class="focused"><li>',
+            end: '</li></ul>'
+        }, {
+            match: /^[0-9]+\.(?:\s|&nbsp;)/,
+            start: '<ol class="focused"><li>',
+            end: '</li></ol>'
+        }
+    ],
+    convertAtStart: function(anchor) {
+        var s = window.getSelection();
+        var node = $(s.focusNode).closest('p');
+        var content = node.html();
+        for (var i in inplace.startMasks) {
+            var mask = inplace.startMasks[i];
+            var match = mask.match.exec(content);
+            if (match) {
+                node.replaceWith(mask.start + content.substr(match[0].length) + mask.end);
+                break;
+            }
+        }
+    },
+    detectInline: function() {
+        var s = window.getSelection();
+        if (!s.focusOffset) {
+            return;
+        }
+        var char = s.focusNode.data.charAt(s.focusOffset - 1);
+        if (char != '_' && char != '*') {
+            return;
+        }
+        if (s.rangeCount) {
+            var range = s.getRangeAt(0);
+            var anchor = $('<a></a>');
+            range.insertNode(anchor[0]);
+            var parent = $(s.focusNode).parent();
+            var content = parent.html();
+            content = content.replace(/\*((?:\w|\s|<|>|&|;)+)\*/g, '<strong>$1</strong>');
+            content = content.replace(/_((?:\w|\s|<|>|&|;)+)_/g, '<em>$1</em>');
+            parent.html(content);
+            anchor = editor.elem.find('a');
+            var range = document.createRange();
+            range.setStartBefore(anchor[0]);
+            range.collapse(true);
+            s.removeAllRanges();
+            s.addRange(range);
+            anchor.remove();
+        }
+    },
+    newline: function(event) {
+        var br = editor.elem.find('br');
+        if (br.length) {
+            if (br.parent().is(editor.elem)) {
+                br.wrap('<p class="focused">');
+            } else {
+                var parent = br.closest('#editor > *');
+                if (parent.is('font, div, span')) {
+                    var content = parent.html();
+                    parent.replaceWith('<p class="focused">' + content + '</p>')
+                    br = editor.elem.find('br');
+                }
+            }
+            var s = window.getSelection();
+            var range = document.createRange();
+            range.setStartBefore(br[0]);
+            range.collapse(true);
+            s.removeAllRanges();
+            s.addRange(range);
+            return;
+        }
+
+        debugger;
+        // TODO detect empty new line (after list)
+    },
+    backspace: function(event) {
+        //debugger;
+    }
+};
+
 var editor = {
     elem: null,
     medium: null,
     init: function() {
         editor.elem = $('#editor');
         function clearTools(event) {
-            if (!preferences.get('pinStructure')) {
+            if (!preferences.get('pinStructure') && structure.elem) {
                 structure.elem.hide('slide', {direction: 'left'});
             }
-            if (!preferences.get('pinStats')) {
+            if (!preferences.get('pinStats') && stats.elem) {
                 stats.elem.hide('slide', {direction: 'right'});
             }
-            if (event.clientY > 50) {
+            if (event.clientY > 50 && actions.elem) {
                 actions.elem.hide('slide', {direction: 'up'});
             }
         }
         editor.elem.on('mousemove', clearTools);
         editor.elem.on('keyup', editor.cleanUp);
+        editor.elem.on('keyup', inplace.convert);
         editor.elem.on('keydown keyup focus click', editor.focus);
         editor.elem.on('keyup focus click', editor.center);
         editor.elem.focus();
         editor.center();
     },
-    load: function() {
-        $.get('test/testdata.md', function(data) {
-            editor.elem.html(markdown.convert(data));
-            metaInfo.buildStructure();
-            metaInfo.buildStats();
-        });
+    load: function(data) {
+        structure.init();
+        stats.init();
+        actions.init();
+        metaInfo.init();
+        editor.elem.html(markdown.convert(data));
+        metaInfo.buildStructure();
+        metaInfo.buildStats();
+        editor.elem.show();
+        editor.elem.focus();
+        document.execCommand('selectAll',false,null)
+        editor.center();
     },
     cleanUp: function(event) {
         editor.elem.find('span, div, font').each(function(i, elem) {
@@ -284,6 +436,7 @@ var editor = {
 
 var metaInfo = {
     elem: {
+        headers: null,
         para: null,
         word: null,
         char: null,
@@ -298,6 +451,7 @@ var metaInfo = {
         time: 0
     },
     init: function() {
+        metaInfo.elem.headers = $('#headers');
         metaInfo.elem.para = $('#paragraphcount span');
         metaInfo.elem.word = $('#wordcount span');
         metaInfo.elem.char = $('#charcount span');
@@ -342,16 +496,20 @@ var metaInfo = {
         metaInfo.elem.page.html(Math.ceil(metaInfo.count.word / 250));
     },
     buildStructure: function () {
-        $('#headers').empty();
+        metaInfo.elem.headers.html('- no headers so far -');
         var counter = 0;
+        var html = '';
         editor.elem.find('h1, h2, h3, h4, h5, h6').each(function (id, element) {
             var header = $(element);
             header.attr('id', 'm' + counter);
             var title = header.html();
             var level = header[0].tagName.substr(1);
-            $('#headers').append('<div class="level' + level + '"><a href="#m' + counter + '">' + title + '</a></div>')
+            html += '<div class="level' + level + '"><a href="#m' + counter + '">' + title + '</a></div>';
             counter++;
         });
+        if (html.length) {
+            metaInfo.elem.headers.html(html);
+        }
     }
 };
 
@@ -386,12 +544,7 @@ var general = {
 
 
 $(document).ready(function() {
-    preferences.init();
     editor.init();
-    structure.init();
-    stats.init();
-    actions.init();
-    metaInfo.init();
-    editor.load();
+    preferences.init();
     general.setKeys();
 });

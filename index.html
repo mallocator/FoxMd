@@ -12,6 +12,7 @@
     </script>
     <script type="text/javascript" src="bower_components/jquery-ui/jquery-ui.min.js"></script>
     <script type="text/javascript" src="bower_components/Keypress/keypress-2.1.0.min.js"></script>
+    <script type="text/javascript" src="files.js"></script>
     <script type="text/javascript" src="editor.js"></script>
 </head>
 <body>
@@ -25,9 +26,9 @@
     <div id="bar">
         <div id="centerSetting">
             <img id="centerNone" class="selected" src="assets/center_none.png" alt="Don't center screen" onclick="actions.center(0, this)"/>
-            <img id="centerBottom" src="assets/center_bottom.png" alt="Center at bottom of screen" onclick="actions.center(0.75, this)"/>
-            <img id="centerMiddle" src="assets/center_middle.png" alt="Center in middle of screen" onclick="actions.center(0.5, this)"/>
             <img id="centerTop" src="assets/center_top.png" alt="Center at top of screen" onclick="actions.center(0.25, this)"/>
+            <img id="centerMiddle" src="assets/center_middle.png" alt="Center in middle of screen" onclick="actions.center(0.5, this)"/>
+            <img id="centerBottom" src="assets/center_bottom.png" alt="Center at bottom of screen" onclick="actions.center(0.75, this)"/>
         </div>
         <div id="focusSetting">
             <img src="assets/focus.png" alt="Focus on paragraph" onclick="actions.focus()"/>
@@ -70,11 +71,21 @@
     </div>
 </div>
 <div id="main">
-    <div id="focusTop"></div>
-    <div id="editor" contenteditable="true">
-
+    <div id="empty">
+        <div id="addIcon" data-title="Create a new document">
+            <img src="assets/add.png" alt="New document icon" onclick="files.create()"/>
+        </div>
+        <div id="openIcon" data-title="Open a document">
+            <img src="assets/folder.png" alt="Open document icon" onclick="files.open()"/>
+        </div>
+        <div id="historyTitle">These are the last files you worked on</div>
+        <div id="history">
+            <div class="entry gdrive" data-path="/google/drive/folders/my first file.md">my first file.md</div>
+            <div class="entry dropbox" data-path="/my second file.md">my second file.md</div>
+            <div class="entry local" data-path="/home/u1234/Documents/projects/project1/other.md">other.md</div>
+        </div>
     </div>
-    <div id="focusBottom"></div>
+    <div id="editor" contenteditable="true"></div>
 </div>
 </body>
 </html>
